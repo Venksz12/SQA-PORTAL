@@ -9,3 +9,10 @@ instance/
 .ipynb_checkpoints/
 .idea/
 .vscode/
+venv/
+__pycache__/
+*.pyc
+*.db
+*.sqlite3
+.env
+.ipynb_ch*ckpoints/
