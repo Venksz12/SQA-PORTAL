@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %}Record #{{ record['id'] }} • SQA Portal{% endblock %}
+{% block content %}
+<div class="page-top">
+    <div>
+        <h1 class="page-title">Record #{{ record['id'] }} — {{ record['part_name'] }}</h1>
+        <p class="page-sub">Supplier: {{ record['supplier_name'] }} • Updated: {{ record['updated_at'] }}</p>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-ghost">Back</a>
+</div>
+
+<div class="detail-grid">
+    <section class="detail-card glass">
+        <h2>Prediction Outcome</h2>
+        <div class="detail-kpis">
+            <div class="mini-kpi">
+                <span>Predicted Score</span>
+                <strong>{{ '%.4f'|format(record['predicted_supplier_quality_score_0_1'] or 0) }}</strong>
+            </div>
+            <div class="mini-kpi">
+                <span>Risk</span>
+                <strong class="risk-text">{{ record['predicted_risk_label'] }}</strong>
+            </div>
+            <div class="mini-kpi">
+                <span>SQM Status</span>
+                <strong>{{ record['predicted_sqm_status'] }}</strong>
+            </div>
+            <div class="mini-kpi">
+                <span>Dealer Recommendation</span>
+                <strong>{{ record['dealer_recommendation'] }}</strong>
+            </div>
+        </div>
+
+        <div class="info-block">
+            <div class="label">Reason</div>
+            <div>{{ record['recommendation_reason'] }}</div>
+        </div>
+
+        <div class="info-block">
+            <div class="label">Preventive Action Statement</div>
+            <div>{{ record['preventive_action_statement'] or 'No preventive statement added yet.' }}</div>
+        </div>
+    </section>
+
+    <section class="detail-card glass">
+        <h2>Inspection Inputs</h2>
+        <div class="info-grid">
+            <div><span>Supplier</span><strong>{{ record['supplier_name'] }} ({{ record['supplier_id'] }})</strong></div>
+            <div><span>Part</span><strong>{{ record['part_name'] }}</strong></div>
+            <div><span>Part Category</span><strong>{{ record['part_category'] }}</strong></div>
+            <div><span>Vehicle Model</span><strong>{{ record['vehicle_model'] }}</strong></div>
+            <div><span>PPM</span><strong>{{ record['ppm'] }}</strong></div>
+            <div><span>OTD %</span><strong>{{ record['otd_pct'] }}</strong></div>
+            <div><span>Audit Score %</span><strong>{{ record['audit_score_pct'] }}</strong></div>
+            <div><span>CPK</span><strong>{{ record['cpk'] }}</strong></div>
+            <div><span>Criticality</span><strong>{{ record['criticality_weight_0_1'] }}</strong></div>
+            <div><span>Min Required SQM</span><strong>{{ record['min_required_sqm_0_1'] }}</strong></div>
+        </div>
+
+        {% if metrics_json %}
+        <div class="code-box">{{ metrics_json }}</div>
+        {% endif %}
+    </section>
+</div>
+
+<div class="detail-card glass mt-lg">
+    {% if session_role == 'dealer' %}
+    <h2>Dealer Decision</h2>
+    <form method="post" class="stack-form">
+        <div class="field">
+            <label>Decision</label>
+            <select name="dealer_decision">
+                <option value="Use" {% if record['dealer_decision'] == 'Use' %}selected{% endif %}>Use</option>
+                <option value="Conditional Use" {% if record['dealer_decision'] == 'Conditional Use' %}selected{% endif %}>Conditional Use</option>
+                <option value="Do Not Use" {% if record['dealer_decision'] == 'Do Not Use' %}selected{% endif %}>Do Not Use</option>
+                <option value="Need Retest" {% if record['dealer_decision'] == 'Need Retest' %}selected{% endif %}>Need Retest</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>Decision Notes</label>
+            <textarea name="dealer_decision_notes" rows="4" placeholder="Add justification, dealer scenario checks, or field usage restrictions.">{{ record['dealer_decision_notes'] or '' }}</textarea>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Save Dealer Decision</button>
+        </div>
+    </form>
+    {% else %}
+    <h2>Quality Tester Preventive Statement</h2>
+    <form method="post" class="stack-form">
+        <div class="field">
+            <label>Update Preventive Action Statement</label>
+            <textarea name="preventive_action_statement" rows="5">{{ record['preventive_action_statement'] or '' }}</textarea>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Save Preventive Statement</button>
+        </div>
+    </form>
+
+    <form method="post" action="{{ url_for('delete_record', record_id=record['id']) }}" class="mt-lg">
+        <button class="btn btn-danger" onclick="return confirm('Delete this record?')">Delete Record</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

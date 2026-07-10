@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Login • SQA Portal{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card glass">
+        <div class="auth-header">
+            <div class="brand-mark large">SQA</div>
+            <h1>Supplier Quality Portal</h1>
+            <p>Premium workspace for <strong>Quality Testers</strong> and <strong>Dealers</strong>.</p>
+        </div>
+
+        <form method="post" class="auth-form">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Enter username" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required>
+
+            <button type="submit" class="btn btn-primary full-btn">Secure Login</button>
+        </form>
+
+        <div class="demo-panel">
+            <div>
+                <span class="demo-label">Quality Tester</span>
+                <code>tester / Tester@123</code>
+            </div>
+            <div>
+                <span class="demo-label">Dealer</span>
+                <code>dealer / Dealer@123</code>
+            </div>
+        </div>
+
+        <p class="hint-text">
+            Single active session per user is enforced. If the same user logs in from another browser/device,
+            the previous session is logged out automatically.
+        </p>
+    </div>
+</div>
+{% endblock %}

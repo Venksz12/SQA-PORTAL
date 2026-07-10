@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}SQA Portal{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+    <div class="app-shell">
+        {% if session_name %}
+        <aside class="sidebar glass">
+            <div>
+                <div class="brand-wrap">
+                    <div class="brand-mark">SQA</div>
+                    <div>
+                        <div class="brand-name">Supplier Quality Portal</div>
+                        <div class="brand-sub">Quality Tester + Dealer Workspace</div>
+                    </div>
+                </div>
+
+                <nav class="nav-links">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                    {% if session_role == 'quality_tester' %}
+                    <a href="{{ url_for('new_record') }}" class="nav-link">New Inspection</a>
+                    {% endif %}
+                </nav>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="avatar-pill">{{ session_name[:1] }}</div>
+                    <div>
+                        <div class="small-label">Signed in as</div>
+                        <div class="user-name">{{ session_name }}</div>
+                        <div class="role-badge {{ 'role-quality' if session_role == 'quality_tester' else 'role-dealer' }}">
+                            {{ session_role.replace('_', ' ')|title }}
+                        </div>
+                    </div>
+                </div>
+                <a class="btn btn-ghost full-btn" href="{{ url_for('logout') }}">Logout</a>
+            </div>
+        </aside>
+        {% endif %}
+
+        <main class="main-area {% if not session_name %}main-auth{% endif %}">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="flash-stack">
+                  {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

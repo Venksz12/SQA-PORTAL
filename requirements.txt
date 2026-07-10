@@ -1,0 +1,6 @@
+flask 
+pandas
+werkzeug
+reportlab
+joblib
+pathlib

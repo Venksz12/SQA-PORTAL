@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard • SQA Portal{% endblock %}
+{% block content %}
+<div class="page-top">
+    <div>
+        <h1 class="page-title">Shared SQA Outcome Dashboard</h1>
+        <p class="page-sub">
+            Visible to both Quality Testers and Dealers. Preventive actions and dealer recommendations
+            are stored record-wise.
+        </p>
+    </div>
+    {% if session_role == 'quality_tester' %}
+    <a href="{{ url_for('new_record') }}" class="btn btn-primary">+ New Inspection Record</a>
+    {% endif %}
+</div>
+
+<div class="kpi-grid">
+    <div class="kpi-card glass">
+        <div class="kpi-label">Total Records</div>
+        <div class="kpi-value">{{ data.stats.total }}</div>
+    </div>
+    <div class="kpi-card glass danger">
+        <div class="kpi-label">High Risk</div>
+        <div class="kpi-value">{{ data.stats.high_risk }}</div>
+    </div>
+    <div class="kpi-card glass warning">
+        <div class="kpi-label">Watchlist</div>
+        <div class="kpi-value">{{ data.stats.watchlist }}</div>
+    </div>
+    <div class="kpi-card glass success">
+        <div class="kpi-label">Low Risk</div>
+        <div class="kpi-value">{{ data.stats.low_risk }}</div>
+    </div>
+    <div class="kpi-card glass neutral">
+        <div class="kpi-label">Average Predicted Score</div>
+        <div class="kpi-value">{{ '%.4f'|format(data.stats.avg_score) }}</div>
+    </div>
+</div>
+
+<div class="table-card glass">
+    <div class="table-header">
+        <h2>Latest SQA Outcomes</h2>
+        <p>
+            Quality Tester updates values and preventive statements.
+            Dealer reviews recommendation and decides whether to use the part.
+        </p>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Supplier</th>
+                    <th>Part</th>
+                    <th>Predicted Score</th>
+                    <th>Risk</th>
+                    <th>SQM Status</th>
+                    <th>Dealer Recommendation</th>
+                    <th>Preventive Action</th>
+                    <th>Dealer Decision</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in data.records %}
+                <tr>
+                    <td>#{{ r['id'] }}</td>
+                    <td>
+                        <div class="table-strong">{{ r['supplier_name'] }}</div>
+                        <div class="table-muted">{{ r['supplier_id'] }}</div>
+                    </td>
+                    <td>
+                        <div class="table-strong">{{ r['part_name'] }}</div>
+                        <div class="table-muted">{{ r['part_category'] }}</div>
+                    </td>
+                    <td>{{ '%.4f'|format(r['predicted_supplier_quality_score_0_1'] or 0) }}</td>
+                    <td>
+                        <span class="risk-pill {{ (r['predicted_risk_label'] or 'Watchlist')|lower|replace(' ', '-') }}">
+                            {{ r['predicted_risk_label'] }}
+                        </span>
+                    </td>
+                    <td>{{ r['predicted_sqm_status'] }}</td>
+                    <td>
+                        <div class="decision-pill {{ (r['dealer_recommendation'] or 'Conditional Use')|lower|replace(' ', '-') }}">
+                            {{ r['dealer_recommendation'] }}
+                        </div>
+                        <div class="table-muted">{{ r['recommendation_reason'] }}</div>
+                    </td>
+                    <td class="statement-cell">{{ r['preventive_action_statement'] or '—' }}</td>
+                    <td>{{ r['dealer_decision'] or 'Pending' }}</td>
+                    <td>
+                        <a class="btn btn-small btn-ghost" href="{{ url_for('record_detail', record_id=r['id']) }}">Open</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="10" class="empty-state">
+                        No records available yet. Start by adding a new Quality Tester inspection record.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

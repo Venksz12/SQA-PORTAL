@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}New Inspection • SQA Portal{% endblock %}
+{% block content %}
+<div class="page-top compact">
+    <div>
+        <h1 class="page-title">New Quality Tester Inspection</h1>
+        <p class="page-sub">
+            Enter inspection values, add preventive guidance, and store SQA outcomes directly in the shared dashboard.
+        </p>
+    </div>
+</div>
+
+<form method="post" class="form-card glass two-col-form">
+    <div class="field">
+        <label>Test Date</label>
+        <input name="test_date" type="date" required>
+    </div>
+    <div class="field">
+        <label>Plant Name</label>
+        <input name="plant_name" placeholder="e.g. Chennai Plant" required>
+    </div>
+
+    <div class="field">
+        <label>Vehicle Model</label>
+        <input name="vehicle_model" placeholder="e.g. BharatBenz 2828">
+    </div>
+    <div class="field">
+        <label>Data Source Type</label>
+        <input name="data_source_type" value="Field / Incoming Inspection">
+    </div>
+
+    <div class="field">
+        <label>Supplier ID</label>
+        <input name="supplier_id" required>
+    </div>
+    <div class="field">
+        <label>Supplier Name</label>
+        <input name="supplier_name" required>
+    </div>
+
+    <div class="field">
+        <label>Part Name</label>
+        <input name="part_name" required>
+    </div>
+    <div class="field">
+        <label>Part Category</label>
+        <input name="part_category" placeholder="Brake / Belt / Hose / Sensor">
+    </div>
+
+    <div class="field">
+        <label>Importance Band</label>
+        <select name="importance_band">
+            <option>Critical</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+        </select>
+    </div>
+    <div class="field">
+        <label>Market Price (INR)</label>
+        <input name="market_price_inr" type="number" step="0.01">
+    </div>
+
+    <div class="field">
+        <label>Qty Inspected</label>
+        <input name="qty_inspected" type="number" step="1" required>
+    </div>
+    <div class="field">
+        <label>Qty Defective</label>
+        <input name="qty_defective" type="number" step="1" required>
+    </div>
+
+    <div class="field">
+        <label>PPM</label>
+        <input name="ppm" type="number" step="0.01">
+    </div>
+    <div class="field">
+        <label>OTD %</label>
+        <input name="otd_pct" type="number" step="0.01">
+    </div>
+
+    <div class="field">
+        <label>Audit Score %</label>
+        <input name="audit_score_pct" type="number" step="0.01">
+    </div>
+    <div class="field">
+        <label>CPK</label>
+        <input name="cpk" type="number" step="0.01">
+    </div>
+
+    <div class="field">
+        <label>Criticality Weight (0 to 1)</label>
+        <input name="criticality_weight_0_1" type="number" step="0.01" min="0" max="1">
+    </div>
+    <div class="field">
+        <label>Minimum Required SQM (0 to 1)</label>
+        <input name="min_required_sqm_0_1" type="number" step="0.01" min="0" max="1" required>
+    </div>
+
+    <div class="field">
+        <label>Impact Raw</label>
+        <input name="impact_raw" type="number" step="0.01">
+    </div>
+    <div class="field">
+        <label>Additional Metrics (JSON or key=value lines)</label>
+        <textarea name="additional_metrics_json" rows="5" placeholder='{"belt_tension_dev_ratio": 0.92, "slip_ratio": 0.04}'></textarea>
+    </div>
+
+    <div class="field field-full">
+        <label>Preventive Action Statement</label>
+        <textarea
+            name="preventive_action_statement"
+            rows="4"
+            placeholder="Example: Check torque, re-validate supplier process settings, add incoming inspection for next 3 lots, inspect crack trend weekly."
+        ></textarea>
+    </div>
+
+    <div class="form-actions field-full">
+        <button type="submit" class="btn btn-primary">Save Outcome to Shared Dashboard</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-ghost">Cancel</a>
+    </div>
+</form>
+{% endblock %}
