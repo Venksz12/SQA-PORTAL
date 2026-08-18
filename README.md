@@ -688,3 +688,530 @@ It connects **quality inspection, explainable evaluation, predictive intelligenc
 The ultimate goal is simple:
 
 > **Don't wait for quality failures to become losses. Detect the signals earlier, understand the risk, make better decisions, and use every quality event as an opportunity to prevent the next one.**
+
+# System Architecture
+
+SQA Portal follows a decision-oriented architecture. The platform
+connects users, the Flask application, the quality evaluation layer,
+the database, and the machine-learning and analytics components.
+
+```mermaid
+flowchart TB
+
+    U[Users]
+
+    QT[Quality Tester]
+    D[Dealer]
+    C[Company Manufacturing]
+    A[Auditor]
+
+    U --> QT
+    U --> D
+    U --> C
+    U --> A
+
+    subgraph APP["SQA Portal - Flask Application"]
+
+        AUTH[Authentication & Role Management]
+
+        ROUTES[Role-Based Routes]
+
+        UI[Dashboards & Web Interface]
+
+        RECORD[Inspection & Record Management]
+
+        SCORE[SQA Scoring Engine]
+
+        RISK[Risk & Recommendation Engine]
+
+        PDF[Verification PDF Generator]
+
+    end
+
+    subgraph DATA["Data Layer"]
+
+        DB[(SQLite Database)]
+
+        SUP[(Supplier Prediction Data)]
+
+        SEN[(Sensor Data)]
+
+        FR[(Fraud Prediction Data)]
+
+        RCA[(RCA Results)]
+
+    end
+
+    subgraph INTELLIGENCE["Analytics & Machine Learning"]
+
+        MODEL[Supplier Quality ML]
+
+        SENSOR[Sensor Anomaly Analysis]
+
+        FRAUD[Fraud Analysis]
+
+        ROOT[RCA Intelligence]
+
+    end
+
+    QT --> AUTH
+    D --> AUTH
+    C --> AUTH
+    A --> AUTH
+
+    AUTH --> ROUTES
+    ROUTES --> UI
+
+    QT --> RECORD
+
+    RECORD --> SCORE
+    SCORE --> RISK
+
+    RECORD --> DB
+    SCORE --> DB
+    RISK --> DB
+
+    DB --> C
+    DB --> D
+
+    C --> DB
+    D --> DB
+
+    DB --> PDF
+
+    SUP --> MODEL
+    SEN --> SENSOR
+    FR --> FRAUD
+    RCA --> ROOT
+
+    MODEL --> A
+    SENSOR --> A
+    FRAUD --> A
+    ROOT --> A
+```
+## Architecture Explained
+
+The architecture is divided into five major areas.
+
+### 1. Users
+
+The platform has four primary roles: Quality Tester, Company Manufacturing,
+Dealer, and Auditor.
+
+Each role interacts with the system according to its responsibility.
+
+### 2. Flask Application
+
+The Flask application acts as the central orchestration layer.
+
+It manages authentication, role-based access, inspection records,
+quality calculations, recommendations, dashboards, and verification
+reports.
+
+### 3. Quality Intelligence
+
+The Quality Tester workflow sends inspection information through the
+SQA scoring engine.
+
+The system evaluates PPM, OTD, audit performance, CPK, part-specific
+quality and other quality conditions before producing an overall
+quality result, risk status and recommendation.
+
+### 4. Data Layer
+
+SQLite stores the operational portal records, while analytical datasets
+support the supplier, sensor, fraud and RCA intelligence workflows.
+
+### 5. Analytics and Machine Learning
+
+The analytical layer provides broader intelligence for supplier risk,
+sensor anomalies, fraud analysis and root-cause investigation.
+
+The important architectural distinction is that the rule-based SQA
+engine provides explainable inspection evaluation, while machine
+learning supports predictive and analytical intelligence.
+
+# Activity Diagram
+
+The activity flow describes how a quality record moves through SQA
+Portal, from authentication and inspection to company review, dealer
+decision and auditor analysis.
+
+```mermaid
+flowchart TD
+
+    START([Start])
+
+    LOGIN[User Login]
+
+    AUTH{Credentials Valid?}
+
+    ROLE{Identify User Role}
+
+    TESTER[Quality Tester]
+
+    COMPANY[Company Manufacturing]
+
+    DEALER[Dealer]
+
+    AUDITOR[Auditor]
+
+    INSPECT[Create Inspection Record]
+
+    PART[Select Part]
+
+    METRICS[Enter Part-Specific Measurements]
+
+    KPI[Enter Quality KPIs]
+
+    SCORE[Calculate SQA Metrics]
+
+    RISK[Determine Risk & SQM Status]
+
+    REC[Generate Recommendation]
+
+    SAVE[Save Inspection Record]
+
+    COMPANY_REVIEW[Company Reviews Record]
+
+    COMPANY_ACTION[Add Guidance, Remarks & Rating]
+
+    DEALER_REVIEW[Dealer Reviews Quality Context]
+
+    PDF[Generate Verification PDF]
+
+    DECISION[Dealer Records Field Decision]
+
+    AUDIT[Auditor Intelligence Dashboard]
+
+    SENSOR[Sensor Anomaly Analysis]
+
+    SUPPLIER[Supplier Risk Analysis]
+
+    FRAUD[Fraud Analysis]
+
+    RCA[Root Cause Analysis]
+
+    END([End])
+
+    START --> LOGIN
+
+    LOGIN --> AUTH
+
+    AUTH -- Invalid --> LOGIN
+
+    AUTH -- Valid --> ROLE
+
+    ROLE --> TESTER
+    ROLE --> COMPANY
+    ROLE --> DEALER
+    ROLE --> AUDITOR
+
+    TESTER --> INSPECT
+
+    INSPECT --> PART
+
+    PART --> METRICS
+
+    METRICS --> KPI
+
+    KPI --> SCORE
+
+    SCORE --> RISK
+
+    RISK --> REC
+
+    REC --> SAVE
+
+    SAVE --> COMPANY_REVIEW
+
+    COMPANY_REVIEW --> COMPANY_ACTION
+
+    COMPANY_ACTION --> DEALER_REVIEW
+
+    SAVE --> DEALER_REVIEW
+
+    DEALER_REVIEW --> PDF
+
+    PDF --> DECISION
+
+    SAVE --> AUDIT
+
+    AUDIT --> SENSOR
+    AUDIT --> SUPPLIER
+    AUDIT --> FRAUD
+    AUDIT --> RCA
+
+    DECISION --> END
+
+    SENSOR --> END
+    SUPPLIER --> END
+    FRAUD --> END
+    RCA --> END
+```
+
+## Activity Flow Explained
+
+The workflow begins with authentication. Once the user is identified,
+the system provides access to the workflow associated with their role.
+
+The Quality Tester creates an inspection record, selects the relevant
+component and enters the measurements specific to that component.
+
+The system then evaluates the quality indicators and produces the
+SQA result, risk classification, SQM status and recommendation.
+
+The resulting record becomes available for Company Manufacturing and
+Dealer review.
+
+Company Manufacturing can add usage guidance, remarks and product
+rating. The Dealer can then review the complete quality context and
+record the actual field decision.
+
+In parallel, the Auditor can investigate the wider quality ecosystem
+through supplier risk, sensor anomalies, fraud analysis and root-cause
+intelligence.
+
+# Sequence Diagram
+
+The sequence diagram shows the communication between the users and
+the major SQA Portal components during a typical inspection-to-decision
+workflow.
+
+```mermaid
+sequenceDiagram
+
+    actor Tester as Quality Tester
+
+    participant UI as SQA Portal UI
+
+    participant App as Flask Application
+
+    participant Score as SQA Scoring Engine
+
+    participant DB as SQLite Database
+
+    actor Company as Company User
+
+    actor Dealer as Dealer
+
+    participant PDF as Verification PDF Generator
+
+
+    Tester->>UI: Login
+
+    UI->>App: Submit credentials
+
+    App->>DB: Validate user and role
+
+    DB-->>App: Authentication result
+
+    App-->>UI: Open dashboard
+
+
+    Tester->>UI: Create inspection
+
+    UI->>App: Submit supplier, part and KPI data
+
+
+    Tester->>UI: Select part-specific measurements
+
+    UI->>App: Request measurement configuration
+
+    App-->>UI: Return measurement fields
+
+
+    Tester->>UI: Enter measurements
+
+    UI->>App: Save measurement data
+
+
+    Tester->>UI: Request quality evaluation
+
+    UI->>Score: Calculate SQA metrics
+
+
+    Score->>Score: Calculate Qppm
+
+    Score->>Score: Calculate Qotd
+
+    Score->>Score: Calculate Qaudit
+
+    Score->>Score: Calculate QcPk
+
+    Score->>Score: Calculate Qpart
+
+
+    Score->>Score: Determine overall score
+
+    Score->>Score: Determine risk
+
+    Score->>Score: Determine SQM status
+
+    Score->>Score: Generate recommendation
+
+
+    Score-->>UI: Return quality result
+
+
+    Tester->>UI: Save inspection
+
+    UI->>App: Submit completed record
+
+    App->>DB: Store inspection
+
+    DB-->>App: Record saved
+
+
+    Company->>UI: Review inspection
+
+    UI->>App: Request record
+
+    App->>DB: Fetch record
+
+    DB-->>App: Return record
+
+    App-->>UI: Display quality information
+
+
+    Company->>UI: Submit guidance
+
+    UI->>App: Save guidance
+
+    App->>DB: Update record
+
+
+    Dealer->>UI: Review record
+
+    UI->>App: Request complete record
+
+    App->>DB: Fetch record
+
+    DB-->>App: Return record
+
+    App-->>UI: Display quality context
+
+
+    Dealer->>PDF: Request verification report
+
+    PDF->>DB: Retrieve record
+
+    DB-->>PDF: Return quality data
+
+    PDF-->>Dealer: Verification PDF
+
+
+    Dealer->>UI: Submit field decision
+
+    UI->>App: Save decision and notes
+
+    App->>DB: Update dealer decision
+
+    DB-->>App: Decision stored
+```
+
+## Sequence Flow Explained
+
+The sequence begins when the Quality Tester authenticates with the
+portal.
+
+After authentication, the tester creates an inspection and submits
+supplier, part and quality information.
+
+For components with specialized measurements, the application provides
+the appropriate measurement fields.
+
+The quality information is then passed to the SQA scoring logic.
+The scoring engine calculates the individual quality dimensions,
+determines the overall result, evaluates risk and generates a
+recommendation.
+
+The completed record is persisted in SQLite.
+
+Company Manufacturing can subsequently retrieve the record and add
+manufacturing guidance.
+
+The Dealer retrieves the same record together with the additional
+company context. The Dealer can request a verification report and
+finally records the actual field decision.
+
+This sequence demonstrates that the quality record is not simply
+created and stored. It moves through multiple actors before becoming
+a complete quality decision.
+
+# Machine Learning & Analytics Architecture
+
+The machine-learning layer complements the explainable SQA scoring
+workflow rather than replacing it.
+
+```mermaid
+flowchart LR
+
+    DATA[Historical Quality Data]
+
+    PREP[Data Preprocessing]
+
+    TRAIN[Model Training]
+
+    REG[Random Forest Regression]
+
+    CLS[Random Forest Classification]
+
+    MODELS[Persisted ML Models]
+
+    SCORE[Predicted Supplier Quality]
+
+    RISK[Predicted Supplier Risk]
+
+    ANALYTICS[Analytics Dashboard]
+
+    DATA --> PREP
+
+    PREP --> TRAIN
+
+    TRAIN --> REG
+
+    TRAIN --> CLS
+
+    REG --> MODELS
+
+    CLS --> MODELS
+
+    MODELS --> SCORE
+
+    MODELS --> RISK
+
+    SCORE --> ANALYTICS
+
+    RISK --> ANALYTICS
+```
+
+## How Rules and ML Work Together
+
+The SQA Portal uses two complementary approaches.
+
+### Rule-Based Quality Evaluation
+
+The inspection workflow uses explicit quality calculations and business
+rules.
+
+This makes the current inspection result explainable.
+
+```text
+Inspection Data
+      ↓
+Quality Metrics
+      ↓
+SQA Evaluation
+      ↓
+Risk / SQM
+      ↓
+Recommendation
+
+
+
+
+
+
+
+
