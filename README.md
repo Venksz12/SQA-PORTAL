@@ -1195,7 +1195,7 @@ The SQA Portal uses two complementary approaches.
 The inspection workflow uses explicit quality calculations and business
 rules.
 
-This makes the current inspection result explainable.
+This makes the current inspection result explainable..
 
 ```text
 Inspection Data
